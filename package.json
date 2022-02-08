@@ -1,0 +1,15 @@
+{
+  "name": "nicelogin",
+  "version": "1.0.0",
+  "description": "Just a nice login...for now...",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "vizualjack",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.2",
+    "express-session": "^1.17.2"
+  }
+}

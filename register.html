@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Register</title>
+
+        <script>
+            function sendRegisterPost(username, password) {
+                let loginData = {};
+                loginData.username = username;
+                loginData.password = password;
+                
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function(e) {
+                    if(this.readyState != 4) return;
+                    if(this.status == 200) window.location.replace("login");
+                    else console.log(this.statusText);
+                }
+                xhr.open("POST", "/register", true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify(loginData));
+            }
+
+            function register(registerBtn) {
+                let form = registerBtn.parentNode;
+                let username = form.querySelector("[name='username']").value;
+                let password = form.querySelector("[name='password']").value;
+                sendRegisterPost(username, password);
+            }
+        </script>
+    </head>
+
+    <body>
+        <form action="/register"  method="post">
+            <input name="username"/>
+            <input type="password" name="password"/>
+            <input type="button" value="Register" onclick="register(this)"/>
+        </form>
+    </body>
+</html>

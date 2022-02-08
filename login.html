@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login</title>
+
+        <script>
+            function sendLoginPost(username, password) {
+                let loginData = {};
+                loginData.username = username;
+                loginData.password = password;
+                
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if(this.readyState != 4) return;
+                    if(this.status == 200) window.location.replace("/");
+                    else console.log(this.statusText);
+                }
+                xhr.open("POST", "/login", true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify(loginData));
+            }
+
+            function login(loginBtn) {
+                let form = loginBtn.parentNode;
+                let username = form.querySelector("[name='username']").value;
+                let password = form.querySelector("[name='password']").value;
+                sendLoginPost(username, password);
+            }
+        </script>
+    </head>
+
+    <body>
+        <form action="/login"  method="post">
+            <input name="username"/>
+            <input type="password" name="password"/>
+            <input type="button" value="Login" onclick="login(this)"/>
+        </form>
+        <a href="register">Create account</a>
+    </body>
+</html>
