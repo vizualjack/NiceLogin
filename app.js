@@ -2,6 +2,9 @@ const express = require('express');
 const session = require('express-session');
 const { rmSync } = require('fs');
 const path = require('path');
+const bcrypt = require('bcrypt');
+const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
 
 const app = express();
 
@@ -43,7 +46,7 @@ app.get("/login", function(req, res) {
 app.post("/login", function(req, res) {
     let loginData = req.body;
     if(users[loginData.username] == undefined || 
-        users[loginData.username] != loginData.password) {
+        !bcrypt.compareSync(loginData.password, users[loginData.username])) {
             res.writeHead(400, "Username or password was not correct");
         }
     else {
@@ -64,10 +67,23 @@ app.post("/register", function(req, res) {
         res.writeHead(400, "Username already exists");
     }
     else {
-        users[loginData.username] = loginData.password;
+        let hashedPw = bcrypt.hashSync(loginData.password, 10);
+        console.log(hashedPw);
+        users[loginData.username] = hashedPw;
         res.writeHead(200);
     }
     res.end();
+});
+
+app.get("/qr", (req, res) => {
+    const secret = speakeasy.generateSecret();
+    console.log(secret);
+    qrcode.toDataURL(secret.otpauth_url, (err, qrcode) => {
+        res.writeHead(200, "Success", {
+            "Content-Type": "image/png"
+        });
+        res.send(qrcode);
+    });
 });
 
 app.listen(8080)
