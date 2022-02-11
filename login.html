@@ -4,16 +4,21 @@
         <title>Login</title>
 
         <script>
-            function sendLoginPost(username, password) {
+            function sendLoginPost(username, password, token) {
                 let loginData = {};
                 loginData.username = username;
                 loginData.password = password;
+                loginData.token = token;
                 
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function() {
                     if(this.readyState != 4) return;
                     if(this.status == 200) window.location.replace("/");
-                    else console.log(this.statusText);
+                    else {
+                        if(this.statusText === "Token needed") {
+                            document.querySelector("input[name=token]").style.display = "block";
+                        }
+                    }
                 }
                 xhr.open("POST", "/login", true);
                 xhr.setRequestHeader("Content-Type", "application/json");
@@ -24,15 +29,23 @@
                 let form = loginBtn.parentNode;
                 let username = form.querySelector("[name='username']").value;
                 let password = form.querySelector("[name='password']").value;
-                sendLoginPost(username, password);
+                let token = form.querySelector("[name='token']").value;
+                sendLoginPost(username, password, token);
             }
         </script>
+
+        <style>
+            input[name=token] {
+                display: none;
+            }
+        </style>
     </head>
 
     <body>
         <form action="/login"  method="post">
             <input name="username"/>
             <input type="password" name="password"/>
+            <input name="token"/>
             <input type="button" value="Login" onclick="login(this)"/>
         </form>
         <a href="register">Create account</a>

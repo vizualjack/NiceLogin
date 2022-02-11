@@ -5,10 +5,12 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
+const res = require('express/lib/response');
 
 const app = express();
 
 const users = {};
+
 
 app.use(session({
 	secret: 'secret',
@@ -27,8 +29,8 @@ app.get("/", function(req, res) {
 });
 
 app.post("/logout", function(req, res) {
-    delete users[req.session.username];
-    if(users[req.session.username] == undefined)  {
+    // delete users[req.session.username];
+    if(users[req.session.username])  {
         delete req.session.username;
         req.session.loggedin = false;
         res.writeHead(200);
@@ -45,10 +47,31 @@ app.get("/login", function(req, res) {
 
 app.post("/login", function(req, res) {
     let loginData = req.body;
-    if(users[loginData.username] == undefined || 
-        !bcrypt.compareSync(loginData.password, users[loginData.username])) {
+    if(!users[loginData.username] || 
+        !bcrypt.compareSync(loginData.password, users[loginData.username].password)) {
             res.writeHead(400, "Username or password was not correct");
         }
+    else if(users[loginData.username].secretVerified){
+        if(!req.body.token) {
+            res.writeHead(400, "Token needed");
+        }
+        else {
+            let verified = speakeasy.totp.verify({
+                secret: users[loginData.username].secret,
+                encoding: "base32",
+                token: req.body.token
+            });
+
+            if(!verified) {
+                res.writeHead(400, "Token was not correct");
+            }
+            else {
+                res.writeHead(200);
+                req.session.loggedin = true;
+                req.session.username = loginData.username;
+            }
+        }
+    }
     else {
         res.writeHead(200);
         req.session.loggedin = true;
@@ -68,22 +91,54 @@ app.post("/register", function(req, res) {
     }
     else {
         let hashedPw = bcrypt.hashSync(loginData.password, 10);
-        console.log(hashedPw);
-        users[loginData.username] = hashedPw;
+        users[loginData.username] = {};
+        users[loginData.username].password = hashedPw;
         res.writeHead(200);
     }
     res.end();
 });
 
-app.get("/qr", (req, res) => {
-    const secret = speakeasy.generateSecret();
-    console.log(secret);
-    qrcode.toDataURL(secret.otpauth_url, (err, qrcode) => {
-        res.writeHead(200, "Success", {
-            "Content-Type": "image/png"
+app.get("/genTwoFactor", function(req, res) {
+    if(req.session.loggedin) {
+        let secret = speakeasy.generateSecret({
+            name: "NiceLogin",
+        }); 
+        users[req.session.username].secret = secret.base32;
+        qrcode.toDataURL(secret.otpauth_url, (err, qrcode) => {
+            res.redirect(qrcode);
+            res.end();
         });
-        res.send(qrcode);
-    });
+    }
+    else {
+        res.writeHead(404);
+        res.end();
+    }
+});
+
+app.get("/twoFactor", function(req, res) {
+    if(req.session.loggedin) {
+        res.sendFile(path.join(__dirname, "twoFactor.html"));
+    }
+    else {
+        res.redirect("login");
+    }
+});
+
+app.post("/twoFactor", function(req, res) {
+    if(req.session.loggedin) {
+        let verified = speakeasy.totp.verify({
+            secret: users[req.session.username].secret,
+            encoding: "base32",
+            token: req.body.token
+        });
+
+        if(verified) users[req.session.username].secretVerified = true;
+        res.send(verified);
+    }
+    else {
+        res.writeHead(404);
+        res.end()
+    }
 });
 
 app.listen(8080)

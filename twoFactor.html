@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login</title>
+
+        <script>
+            function sendTokenPost(token) {
+                let tokenData = {};
+                tokenData.token = token;
+                
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if(this.readyState != 4) return;
+                    if(this.status == 200) {
+                        // window.location.replace("/");
+                        if(this.response === "true") console.log("Two Factor verified");
+                    }
+                }
+                xhr.open("POST", "/twoFactor", true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify(tokenData));
+            }
+
+            function verify(verifyBtn) {
+                let form = verifyBtn.parentNode;
+                let token = form.querySelector("[name='token']").value;
+                sendTokenPost(token);
+            }
+        </script>
+    </head>
+
+    <body>
+        <img src="/genTwoFactor"/>
+        <form action="/twoFactor"  method="post">
+            <input name="token"/>
+            <input type="button" value="Verify" onclick="verify(this)"/>
+        </form>
+    </body>
+</html>
