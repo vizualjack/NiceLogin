@@ -10,18 +10,6 @@ const speakeasy = require('speakeasy');
 var app = express();
 var userFeatures = require("./userFeatures");
 
-async function testDB() {
-    const Database = require("./database");
-    var database = await Database("mongodb://127.0.0.1:27017/test");
-    var testUser = new database.User({
-        name: "Test"
-    });
-    await testUser.save();
-}
-
-testDB();
-
-
 app.use(session({
 	secret: 'secret',
 	resave: true,
@@ -41,19 +29,20 @@ app.route("/login")
     .get(function(req, res) {
         res.sendFile(path.join(__dirname, "login.html"));
     })
-    .post(function(req, res) {
+    .post(async function(req, res) {
         let loginData = req.body;
-        if(!userFeatures.users[loginData.username] || 
-            !bcrypt.compareSync(loginData.password, userFeatures.users[loginData.username].password)) {
+        let user = await userFeatures.getUserByUsername(loginData.username);
+        if(!user || 
+            !bcrypt.compareSync(loginData.password, user.password)) {
                 res.writeHead(401, "Username or password was not correct");
             }
-        else if(userFeatures.users[loginData.username].secretVerified){
+        else if(user.secretVerified){
             if(!req.body.token) {
                 res.writeHead(401, "Token needed");
             }
             else {
                 let verified = speakeasy.totp.verify({
-                    secret: userFeatures.users[loginData.username].secret,
+                    secret: user.secret,
                     encoding: "base32",
                     token: req.body.token
                 });
@@ -80,15 +69,16 @@ app.route("/register")
     .get(function(req, res) {
         res.sendFile(path.join(__dirname, "register.html"));
     })
-    .post(function(req, res) {
+    .post(async function(req, res) {
         let loginData = req.body;
-        if(userFeatures.users[loginData.username] != undefined) {
+        let user = await userFeatures.getUserByUsername(loginData.username);
+        console.log(user);
+        if(user) {
             res.writeHead(400, "Username already exists");
         }
         else {
             let hashedPw = bcrypt.hashSync(loginData.password, 10);
-            userFeatures.users[loginData.username] = {};
-            userFeatures.users[loginData.username].password = hashedPw;
+            userFeatures.addUser(loginData.username, hashedPw);
             res.writeHead(200);
         }
         res.end();
