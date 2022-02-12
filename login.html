@@ -13,7 +13,7 @@
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function() {
                     if(this.readyState != 4) return;
-                    if(this.status == 200) window.location.replace("/");
+                    if(this.status == 200) window.location.replace("/user");
                     else {
                         if(this.statusText === "Token needed") {
                             document.querySelector("input[name=token]").style.display = "block";
