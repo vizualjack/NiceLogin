@@ -6,8 +6,21 @@ const bcrypt = require('bcrypt');
 const res = require('express/lib/response');
 const speakeasy = require('speakeasy');
 
+
 var app = express();
 var userFeatures = require("./userFeatures");
+
+async function testDB() {
+    const Database = require("./database");
+    var database = await Database("mongodb://127.0.0.1:27017/test");
+    var testUser = new database.User({
+        name: "Test"
+    });
+    await testUser.save();
+}
+
+testDB();
+
 
 app.use(session({
 	secret: 'secret',
