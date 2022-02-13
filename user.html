@@ -3,6 +3,9 @@
     <head>
         <title>NiceLogin</title>
 
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
+        <link rel="stylesheet" href="base.css">
+        <link rel="stylesheet" href="user.css">
         <script>
             function logout() {                
                 let xhr = new XMLHttpRequest();
@@ -14,12 +17,76 @@
                 xhr.open("POST", "user/logout", true);
                 xhr.send();
             }
+
+            function sendTokenPost(token) {
+                let tokenData = {};
+                tokenData.token = token;
+                
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if(this.readyState != 4) return;
+                    if(this.status == 200 && this.response === "true") {
+                        document.querySelector(".twoFactorVerified").style.display = "block";
+                        document.querySelector(".twoFactorVerification").style.display = "none";
+                    }
+                }
+                xhr.open("POST", "user/twoFactor", true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify(tokenData));
+            }
+
+            function verifyTwoFactor(verifyBtn) {
+                let form = verifyBtn.parentNode;
+                let token = form.querySelector("[name='token']").value;
+                sendTokenPost(token);
+            }
+
+            function showTwoFactorVerification() {
+                document.querySelector(".twoFactorVerified").style.display = "none";
+                document.querySelector(".twoFactorVerification").style.display = "block";
+            }
+
+            function switchSettings() {
+                if(document.querySelector(".user").style.display == "block") {
+                    document.querySelector(".user").style.display = "none";
+                }
+                else {
+                    document.querySelector(".user").style.display = "block";
+                }
+            }
+
+            function loadUser() {          
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if(this.readyState != 4) return;
+                    if(this.status == 200) {
+                        var user = JSON.parse(this.response);
+                        document.getElementById("username").innerHTML = user.username;
+                    }
+                    else console.log(this.statusText);
+                }
+                xhr.open("GET", "user/info", true);
+                xhr.send();
+            }
+            loadUser()
         </script>
     </head>
 
     <body>
-        <h1>You're logged in!</h1>
-        <a href="user/twoFactor">Activate Two Factor</a>
-        <input type="button" value="Log out" onclick="logout()"/>
+        <nav>
+            <span role="button" onclick="switchSettings()">Settings</span>
+            <span role="button" onclick="logout()">Logout</span>
+        </nav>
+        <div class="user">
+            Username: <span id="username"></span>
+            TwoFactor: <span class="twoFactorVerified">verified</span>
+            <div class="twoFactorVerification">
+                <img src="user/genTwoFactor" onload="showTwoFactorVerification()"/>
+                <form action="twoFactor"  method="post">
+                    <input name="token"/>
+                    <span role="button" onclick="verifyTwoFactor(this)">Verify</span>
+                </form>
+            </div>
+        </div>
     </body>
 </html>

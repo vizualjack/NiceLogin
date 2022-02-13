@@ -27,6 +27,10 @@ router.get("/", function(req, res) {
     res.sendFile(path.join(__dirname, "user.html"));
 });
 
+router.get("/info", function(req, res) {
+    res.send({username: req.session.username});
+});
+
 router.post("/logout", function(req, res) {
     delete req.session.username;
     req.session.loggedin = false;

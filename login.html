@@ -3,8 +3,8 @@
     <head>
         <title>NiceLogin - Login</title>
 
-
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
+        <link rel="stylesheet" href="base.css">
         <link rel="stylesheet" href="login.css">
         <script>
             function sendLoginPost(username, password, token) {
@@ -19,7 +19,8 @@
                     if(this.status == 200) window.location.replace("/user");
                     else {
                         if(this.statusText === "Token needed") {
-                            document.querySelector("input[name=token]").style.display = "block";
+                            document.querySelector(".userPassView").style.display = "none";
+                            document.querySelector(".tokenView").style.display = "flex";
                         }
                     }
                 }
@@ -32,8 +33,38 @@
                 let form = loginBtn.parentNode;
                 let username = form.querySelector("[name='username']").value;
                 let password = form.querySelector("[name='password']").value;
-                let token = form.querySelector("[name='token']").value;
+                let token = getToken();
                 sendLoginPost(username, password, token);
+            }
+
+            function getToken() {
+                let token = "";
+                document.querySelectorAll("input[name='token[]']").forEach((tokenInput) => {
+                    token += tokenInput.value;
+                });
+                return token;
+            }
+
+            function tokenInput(e) {
+                e.preventDefault();
+                if((48 <= e.keyCode && e.keyCode <= 57) 
+                    || e.keyCode == 8) {
+                    let tokenInputs = document.querySelectorAll("input[name='token[]']");
+                    let tokenInIndex = Array.prototype.indexOf.call(tokenInputs, e.target);
+
+                    if(e.keyCode == 8) {
+                        tokenInIndex--;
+                        e.target.value = "";
+                    }
+                    else {
+                        tokenInIndex++;
+                        e.target.value = e.key;
+                    }
+                    
+                    if(tokenInIndex < 0) tokenInIndex = 0;
+                    else if (tokenInIndex >= tokenInputs.length) tokenInIndex = tokenInputs.length-1;
+                    tokenInputs[tokenInIndex].focus();
+                }
             }
         </script>
     </head>
@@ -47,12 +78,12 @@
                 <input type="password" name="password" placeholder="Password"/>
             </div>
             <div class="tokenView">
-                <input name="token"/>
-                <input name="token"/>
-                <input name="token"/>
-                <input name="token"/>
-                <input name="token"/>
-                <input name="token"/>
+                <input name="token[]" onkeydown="tokenInput(event)"/>
+                <input name="token[]" onkeydown="tokenInput(event)"/>
+                <input name="token[]" onkeydown="tokenInput(event)"/>
+                <input name="token[]" onkeydown="tokenInput(event)"/>
+                <input name="token[]" onkeydown="tokenInput(event)"/>
+                <input name="token[]" onkeydown="tokenInput(event)"/>
             </div>
             <span role="button" onclick="login(this)">Login</span>
          </form>
