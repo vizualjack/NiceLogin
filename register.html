@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Register</title>
+        <title>NiceLogin - Register</title>
 
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
+        <link rel="stylesheet" href="login.css">
         <script>
             function sendRegisterPost(username, password) {
                 let loginData = {};
@@ -30,10 +32,11 @@
     </head>
 
     <body>
+        <h1>Register</h1>
         <form action="/register"  method="post">
-            <input name="username"/>
-            <input type="password" name="password"/>
-            <input type="button" value="Register" onclick="register(this)"/>
+            <input name="username" placeholder="Username"/>
+            <input type="password" name="password" placeholder="Password"/>
+            <span role="button" onclick="register(this)">Register</span>
         </form>
     </body>
 </html>

@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Login</title>
+        <title>NiceLogin - Login</title>
 
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
+        <link rel="stylesheet" href="login.css">
         <script>
             function sendLoginPost(username, password, token) {
                 let loginData = {};
@@ -33,21 +36,25 @@
                 sendLoginPost(username, password, token);
             }
         </script>
-
-        <style>
-            input[name=token] {
-                display: none;
-            }
-        </style>
     </head>
 
     <body>
+        <h1>Login</h1>
         <form action="/login"  method="post">
-            <input name="username"/>
-            <input type="password" name="password"/>
-            <input name="token"/>
-            <input type="button" value="Login" onclick="login(this)"/>
-        </form>
-        <a href="register">Create account</a>
+            <div class="userPassView">
+                <a href="register">Create account</a>
+                <input name="username" placeholder="Username"/>
+                <input type="password" name="password" placeholder="Password"/>
+            </div>
+            <div class="tokenView">
+                <input name="token"/>
+                <input name="token"/>
+                <input name="token"/>
+                <input name="token"/>
+                <input name="token"/>
+                <input name="token"/>
+            </div>
+            <span role="button" onclick="login(this)">Login</span>
+         </form>
     </body>
 </html>
