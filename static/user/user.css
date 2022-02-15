@@ -1,9 +1,18 @@
 nav {
     background-color: #123456;
-    display: flex;
-    justify-content: end;
-    gap: 20px;
     padding: 5px;
+}
+
+nav .leftNav {
+    position: absolute;
+    display: flex;
+    gap: 20px;
+}
+
+nav .rightNav {
+    justify-content: end;
+    display: flex;
+    gap: 20px;
 }
 
 span[role=button] {

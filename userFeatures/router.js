@@ -6,6 +6,8 @@ const qrcode = require('qrcode');
 const UserDatabase = require('./database');
 let userDatabase = new UserDatabase("mongodb://127.0.0.1:27017/nicelogin");
 
+var checklist = require("./features/checklist/router");
+
 
 router.addUser = async function (username, password) {
     let user = userDatabase.User({username: username, password: password});
@@ -23,9 +25,13 @@ router.use(function checkLoggedIn(req, res, next) {
     else next();
 });
 
+
+
 router.get("/", function(req, res) {
     res.sendFile(path.join(__dirname, "index.html"));
 });
+
+router.use("/checklist", checklist);
 
 router.get("/info", function(req, res) {
     res.send({username: req.session.username});

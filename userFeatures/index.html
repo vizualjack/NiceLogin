@@ -5,7 +5,7 @@
 
         <title>NiceLogin</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
-        <link rel="stylesheet" href="base.css">
+        <link rel="stylesheet" href="/base.css">
         <link rel="stylesheet" href="user.css">
         <script>
             function logout() {                
@@ -69,14 +69,39 @@
                 xhr.open("GET", "user/info", true);
                 xhr.send();
             }
-            loadUser()
+
+            function loadUserFeature(name) {
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if(this.readyState != 4) return;
+                    if(this.status == 200) {
+                        let featurePage = new DOMParser().parseFromString(this.response, "text/html");
+                        document.getElementById("featureStyle").innerHTML = featurePage.getElementsByTagName("style")[0].innerHTML;
+                        document.getElementById("featureScript").innerHTML = featurePage.getElementsByTagName("script")[0].innerHTML;
+                        document.getElementById("featurePage").innerHTML = featurePage.getElementsByTagName("body")[0].innerHTML;
+                    }
+                    else console.log(this.statusText);
+                }
+                xhr.open("GET", name, true);
+                xhr.send();
+            }
+
+            loadUser();
         </script>
+
+        <style id="featureStyle"></style>
+        <script id="featureScript"></script>
     </head>
 
     <body>
         <nav>
-            <span role="button" onclick="switchSettings()">Settings</span>
-            <span role="button" onclick="logout()">Logout</span>
+            <div class="leftNav">
+                <span role="button" onclick="loadUserFeature('checklist')">Checklist</span>
+            </div>
+            <div class="rightNav">
+                <span role="button" onclick="switchSettings()">Settings</span>
+                <span role="button" onclick="logout()">Logout</span>
+            </div>
         </nav>
         <div class="user">
             Username: <span id="username"></span>
@@ -89,5 +114,7 @@
                 </form>
             </div>
         </div>
+
+        <div id="featurePage"></div>
     </body>
 </html>
