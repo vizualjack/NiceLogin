@@ -3,7 +3,7 @@ var router = express.Router();
 const path = require('path');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
-const UserDatabase = require('./userDatabase');
+const UserDatabase = require('./database');
 let userDatabase = new UserDatabase("mongodb://127.0.0.1:27017/nicelogin");
 
 
@@ -24,7 +24,7 @@ router.use(function checkLoggedIn(req, res, next) {
 });
 
 router.get("/", function(req, res) {
-    res.sendFile(path.join(__dirname, "user.html"));
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 router.get("/info", function(req, res) {

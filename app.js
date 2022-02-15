@@ -10,7 +10,7 @@ const ip = require("ip");
 const port = 8080;
 
 var app = express();
-var userFeatures = require("./userFeatures");
+var userFeatures = require("./userFeatures/router");
 
 app.use(session({
 	secret: 'secret',
