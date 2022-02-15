@@ -5,7 +5,9 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const res = require('express/lib/response');
 const speakeasy = require('speakeasy');
+const ip = require("ip");
 
+const port = 8080;
 
 var app = express();
 var userFeatures = require("./userFeatures");
@@ -88,4 +90,7 @@ app.get("*", function(req, res) {
     res.status(404).send('here is nothing');
 });
 
-app.listen(8080)
+app.listen(port);
+console.log("Server started!");
+console.log(`Local: http://localhost:${port}`);
+console.log(`Network: http://${ip.address()}:${port}`);

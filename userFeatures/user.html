@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>NiceLogin</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 
+        <title>NiceLogin</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
         <link rel="stylesheet" href="base.css">
         <link rel="stylesheet" href="user.css">
@@ -26,7 +27,7 @@
                 xhr.onreadystatechange = function() {
                     if(this.readyState != 4) return;
                     if(this.status == 200 && this.response === "true") {
-                        document.querySelector(".twoFactorVerified").style.display = "block";
+                        document.querySelector(".twoFactorVerified").style.display = "inline";
                         document.querySelector(".twoFactorVerification").style.display = "none";
                     }
                 }
