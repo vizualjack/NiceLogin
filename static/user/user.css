@@ -1,6 +1,7 @@
 nav {
     background-color: #123456;
     padding: 5px;
+    box-sizing: border-box;
 }
 
 nav .leftNav {
@@ -52,4 +53,8 @@ img {
     font-size: 0.9em;
     padding: 5px;
     margin-top: 5px;
+}
+
+#featurePage {
+    height: calc(100% - 51px);
 }

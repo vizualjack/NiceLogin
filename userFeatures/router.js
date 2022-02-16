@@ -3,20 +3,21 @@ var router = express.Router();
 const path = require('path');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
-const UserDatabase = require('./database');
-let userDatabase = new UserDatabase("mongodb://127.0.0.1:27017/nicelogin");
+const Database = require('./database');
+let database = new Database().getInstance();
 
 var checklist = require("./features/checklist/router");
 
 
 router.addUser = async function (username, password) {
-    let user = userDatabase.User({username: username, password: password});
+    let user = database.User({username: username, password: password});
     const newUser = await user.save();
     return newUser === user;
 }
 
 router.getUserByUsername = async function (username) {
-    return await userDatabase.User.findOne({ username: username });
+    let user = await database.User.findOne({ username: username });
+    return user;
 }
 
 
