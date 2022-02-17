@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 
+var DatabaseInstance = null;
 class Database {
-    constructor(address) {
-        mongoose.connect(address);
+    constructor() {
+        if(DatabaseInstance) return DatabaseInstance;
+
+        DatabaseInstance = this;
+        mongoose.connect("mongodb://127.0.0.1:27017/nicelogin");
 
         this.User = mongoose.model('User', {
             username: String,
@@ -19,18 +23,4 @@ class Database {
     }
 }
 
-class Singleton {
-
-    constructor() {
-        if (!Singleton.instance) {
-            Singleton.instance = new Database("mongodb://127.0.0.1:27017/nicelogin");
-        }
-    }
-  
-    getInstance() {
-        return Singleton.instance;
-    }
-  
-  }
-
-module.exports = Singleton;
+module.exports = Database;

@@ -13,12 +13,47 @@
     </style>
 
     <script>
-        
+        async function getChecks() {
+            const response = await fetch("checklist/checks", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                } 
+            });
+            return response.json();
+        }
+
+        async function sendNewCheck(text) {
+            const response = await fetch("checklist/create", {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({text: text}) 
+            });
+            return response; // == "true";
+        }
+
+        async function showChecks() {
+            console.log(await getChecks());
+        }
+
+        async function createNewCheck() {
+            let newCheckInput = document.querySelector("input");
+            console.log(await sendNewCheck(newCheckInput.value)); 
+        }
+
+        showChecks();
     </script>
 </head>
 
 <body>
     <div class="checklistPage">
         <h1>Checklist</h1>
+
+        <div class="newCheck">
+            <input name="newCheckText"/>
+            <button onclick="createNewCheck()">Create</button>
+        </div>
     </div>
 </body>

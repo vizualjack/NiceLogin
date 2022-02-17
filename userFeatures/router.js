@@ -4,7 +4,7 @@ const path = require('path');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 const Database = require('./database');
-let database = new Database().getInstance();
+let database = new Database();
 
 var checklist = require("./features/checklist/router");
 
