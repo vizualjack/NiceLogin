@@ -15,7 +15,7 @@
                     if(this.status == 200) window.location.replace("login");
                     else console.log(this.statusText);
                 }
-                xhr.open("POST", "user/logout", true);
+                xhr.open("POST", "logout", true);
                 xhr.send();
             }
 
@@ -31,7 +31,7 @@
                         document.querySelector(".twoFactorVerification").style.display = "none";
                     }
                 }
-                xhr.open("POST", "user/twoFactor", true);
+                xhr.open("POST", "twoFactor", true);
                 xhr.setRequestHeader("Content-Type", "application/json");
                 xhr.send(JSON.stringify(tokenData));
             }
@@ -66,7 +66,7 @@
                     }
                     else console.log(this.statusText);
                 }
-                xhr.open("GET", "user/info", true);
+                xhr.open("GET", "info", true);
                 xhr.send();
             }
 
@@ -76,9 +76,9 @@
                     if(this.readyState != 4) return;
                     if(this.status == 200) {
                         let featurePage = new DOMParser().parseFromString(this.response, "text/html");
+                        document.getElementById("featurePage").innerHTML = featurePage.getElementsByTagName("body")[0].innerHTML;
                         document.getElementById("featureStyle").innerHTML = featurePage.getElementsByTagName("style")[0].innerHTML;
                         document.getElementById("featureScript").innerHTML = featurePage.getElementsByTagName("script")[0].innerHTML;
-                        document.getElementById("featurePage").innerHTML = featurePage.getElementsByTagName("body")[0].innerHTML;
                     }
                     else console.log(this.statusText);
                 }
@@ -107,7 +107,7 @@
             Username: <span id="username"></span>
             TwoFactor: <span class="twoFactorVerified">verified</span>
             <div class="twoFactorVerification">
-                <img src="user/genTwoFactor" onload="showTwoFactorVerification()"/>
+                <img src="genTwoFactor" onload="showTwoFactorVerification()"/>
                 <form action="twoFactor"  method="post">
                     <input name="token"/>
                     <span role="button" onclick="verifyTwoFactor(this)">Verify</span>

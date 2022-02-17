@@ -12,18 +12,24 @@ router.get("/", function(req, res) {
 
 router.post("/create", async function(req, res) {
     let user = await database.User.findOne({ username: req.session.username });
-    let newCheck = database.Check({userHex: user._id.toHexString(), text: req.body.text});
+    let newCheck = database.Check({userHex: user._id.toHexString(), text: req.body.text, checked: false});
     const checkInDb = await newCheck.save();
-    return checkInDb === newCheck;
+    res.send(checkInDb === newCheck);
 });
 
-router.post("/changeStatus", function(req, res) {
-
+router.post("/changeStatus", async function(req, res) {
+    let userHex = (await database.User.findOne({ username: req.session.username }))._id.toHexString();
+    let check = await database.Check.findOne({_id: req.body.checkId, userHex: userHex});
+    if(check) {
+        check.checked = !check.checked;
+        await check.save();
+    }
+    res.send(check != undefined);
 });
 
 router.get("/checks", async function(req, res) {
     let user = await database.User.findOne({ username: req.session.username });
-    let checksForUser = await database.Check.find({userHex: user._id.toHexString()});
+    let checksForUser = await database.Check.find({userHex: user._id.toHexString()},["text", "checked"]);
     res.send(checksForUser);
 });
 

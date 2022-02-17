@@ -31,16 +31,51 @@
                 },
                 body: JSON.stringify({text: text}) 
             });
-            return response; // == "true";
+            return response;
+        }
+
+        async function sendChangeCheck(id) {
+            const response = await fetch("checklist/changeStatus", {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({checkId: id}) 
+            });
+            return response;
         }
 
         async function showChecks() {
-            console.log(await getChecks());
+            let checks = document.querySelector("div.checks");
+            clean(checks, 0);
+            let checkExample = document.querySelector(".check");
+            (await getChecks()).forEach(check => {
+                let newCheck = checkExample.cloneNode(true);
+                let input = newCheck.querySelector("input");
+                input.id = check._id;
+                input.checked = check.checked;
+                input.setAttribute("onchange", "changeStatus(event)");
+                newCheck.querySelector("label").innerHTML = check.text;
+                newCheck.style.display = "block";
+                checks.append(newCheck);
+            });
+        }
+
+        async function changeStatus(event) {
+            let check = event.target;
+            if(await sendChangeCheck(check.id)) showChecks();
+        }
+
+        async function clean(element, startIndex) {
+            if(element.children.length <= 0) return;
+            for(let i = element.children.length-1; i > startIndex; i--) {
+                element.children[i].remove();
+            }
         }
 
         async function createNewCheck() {
-            let newCheckInput = document.querySelector("input");
-            console.log(await sendNewCheck(newCheckInput.value)); 
+            let newCheckInput = document.querySelector("input[name=newCheckText]");
+            if(await sendNewCheck(newCheckInput.value)) showChecks();
         }
 
         showChecks();
@@ -50,9 +85,14 @@
 <body>
     <div class="checklistPage">
         <h1>Checklist</h1>
-
+        <div class="checks">
+            <div class="check" style="display: none">
+                <input type="checkbox"/>
+                <label>example</label>
+            </div>
+        </div>
         <div class="newCheck">
-            <input name="newCheckText"/>
+            <input type="text" name="newCheckText"/>
             <button onclick="createNewCheck()">Create</button>
         </div>
     </div>
