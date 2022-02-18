@@ -5,6 +5,8 @@ const path = require('path');
 const Database = require('../../database');
 let database = new Database();
 
+async function getCheckForUsername(username) {
+}
 
 router.get("/", function(req, res) {
     res.sendFile(path.join(__dirname, "index.html"));
@@ -25,6 +27,13 @@ router.post("/changeStatus", async function(req, res) {
         await check.save();
     }
     res.send(check != undefined);
+});
+
+router.post("/delete", async function(req, res) {
+    let userHex = (await database.User.findOne({ username: req.session.username }))._id.toHexString();
+    await database.Check.findOneAndRemove({_id: req.body.checkId, userHex: userHex});
+    let check = await database.Check.findOne({_id: req.body.checkId, userHex: userHex});
+    res.send(check == undefined);
 });
 
 router.get("/checks", async function(req, res) {

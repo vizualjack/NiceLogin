@@ -10,6 +10,11 @@
         .checklistPage h1 {
             color: blueviolet;
         }
+
+        .checklistPage span[role="button"] {
+            display: inline-block;
+            padding: 0;
+        }
     </style>
 
     <script>
@@ -45,6 +50,17 @@
             return response;
         }
 
+        async function sendRemoveCheck(id) {
+            const response = await fetch("checklist/delete", {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({checkId: id}) 
+            });
+            return response;
+        }
+
         async function showChecks() {
             let checks = document.querySelector("div.checks");
             clean(checks, 0);
@@ -54,7 +70,6 @@
                 let input = newCheck.querySelector("input");
                 input.id = check._id;
                 input.checked = check.checked;
-                input.setAttribute("onchange", "changeStatus(event)");
                 newCheck.querySelector("label").innerHTML = check.text;
                 newCheck.style.display = "block";
                 checks.append(newCheck);
@@ -63,7 +78,12 @@
 
         async function changeStatus(event) {
             let check = event.target;
-            if(await sendChangeCheck(check.id)) showChecks();
+            if(check.id && await sendChangeCheck(check.id)) showChecks();
+        }
+
+        async function removeCheck(delBtn) {
+            let check = event.target.parentElement.querySelector("input");
+            if(check.id && await sendRemoveCheck(check.id)) showChecks();
         }
 
         async function clean(element, startIndex) {
@@ -87,8 +107,9 @@
         <h1>Checklist</h1>
         <div class="checks">
             <div class="check" style="display: none">
-                <input type="checkbox"/>
+                <input type="checkbox" onchange="changeStatus(event)"/>
                 <label>example</label>
+                <span role="button" onclick="removeCheck(event)">X</span>
             </div>
         </div>
         <div class="newCheck">
