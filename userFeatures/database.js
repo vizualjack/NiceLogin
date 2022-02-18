@@ -6,7 +6,9 @@ class Database {
         if(DatabaseInstance) return DatabaseInstance;
 
         DatabaseInstance = this;
-        mongoose.connect("mongodb://127.0.0.1:27017/nicelogin");
+        mongoose.connect(process.env.MONGO_URI, {
+            dbName: process.env.DB_NAME
+        });
 
         this.User = mongoose.model('User', {
             username: String,

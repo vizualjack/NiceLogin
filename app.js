@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require('express');
 const session = require('express-session');
 const { rmSync } = require('fs');
@@ -7,7 +8,7 @@ const res = require('express/lib/response');
 const speakeasy = require('speakeasy');
 const ip = require("ip");
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 var app = express();
 var userFeatures = require("./userFeatures/router");
@@ -94,3 +95,4 @@ app.listen(port);
 console.log("Server started!");
 console.log(`Local: http://localhost:${port}`);
 console.log(`Network: http://${ip.address()}:${port}`);
+console.log(process.env);

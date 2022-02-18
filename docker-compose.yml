@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  webapp:
+    restart: always
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    container_name: webapp
+    volumes:
+      - /app/node_modules
+      - ./:/app
+    ports:
+      - 80:80
+    depends_on:
+      - mongodb
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb
+    networks:
+      - mongo-nodejs-webapp  
+  mongodb:
+    image: mongodb
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - mongo-nodejs-webapp
+networks:
+  mongo-nodejs-webapp:
+    driver: bridge
+volumes:
+ mongodb-data:
+  driver: local
