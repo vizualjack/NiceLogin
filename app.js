@@ -95,4 +95,3 @@ app.listen(port);
 console.log("Server started!");
 console.log(`Local: http://localhost:${port}`);
 console.log(`Network: http://${ip.address()}:${port}`);
-console.log(process.env);

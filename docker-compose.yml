@@ -13,14 +13,14 @@ services:
     ports:
       - 80:80
     depends_on:
-      - mongodb
+      - mongo
     environment:
       NODE_ENV: ${NODE_ENV}
-      MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb
+      MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo
     networks:
       - mongo-nodejs-webapp  
-  mongodb:
-    image: mongodb
+  mongo:
+    image: mongo
     restart: always
     ports:
       - 27017:27017
@@ -28,12 +28,12 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     volumes:
-      - mongodb-data:/data/db
+      - mongo-data:/data/db
     networks:
       - mongo-nodejs-webapp
 networks:
   mongo-nodejs-webapp:
     driver: bridge
 volumes:
- mongodb-data:
+ mongo-data:
   driver: local
