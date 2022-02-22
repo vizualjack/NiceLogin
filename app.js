@@ -1,5 +1,7 @@
 require("dotenv").config();
 const express = require('express');
+const http = require('http');
+const https = require('https');
 const session = require('express-session');
 const { rmSync } = require('fs');
 const path = require('path');
@@ -8,7 +10,13 @@ const res = require('express/lib/response');
 const speakeasy = require('speakeasy');
 const ip = require("ip");
 
-const port = process.env.PORT || 8080;
+const httpPort = process.env.HTTP_PORT || 8080;
+// const httpsPort = process.env.HTTPS_PORT || 8443;
+
+// var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
+// var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+// var credentials = {key: privateKey, cert: certificate};
+
 
 var app = express();
 var userFeatures = require("./userFeatures/router");
@@ -91,7 +99,12 @@ app.get("*", function(req, res) {
     res.status(404).send('here is nothing');
 });
 
-app.listen(port);
+var httpServer = http.createServer(app);
+httpServer.listen(httpPort);
+
+// var httpsServer = https.createServer(credentials, app);
+// httpsServer.listen(httpsPort);
+
 console.log("Server started!");
-console.log(`Local: http://localhost:${port}`);
-console.log(`Network: http://${ip.address()}:${port}`);
+console.log(`Local: http://localhost:${httpPort}`);
+console.log(`Network: http://${ip.address()}:${httpPort}`);
