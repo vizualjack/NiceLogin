@@ -57,4 +57,5 @@ img {
 
 #featurePage {
     height: calc(100% - 51px);
+    overflow-y: auto;
 }

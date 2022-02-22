@@ -94,9 +94,8 @@ app.get("*", function(req, res) {
 });
 
 
-
 if(process.env.HTTPS_CERT === '') {
-    var httpServer = http.createServer(redirectApp);
+    var httpServer = http.createServer(app);
     httpServer.listen(httpPort);
     console.log("Server started!");
     console.log(`Local: http://localhost:${httpPort}`);

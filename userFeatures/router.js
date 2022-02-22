@@ -22,10 +22,9 @@ router.getUserByUsername = async function (username) {
 
 
 router.use(function checkLoggedIn(req, res, next) {
-    if(!req.session.loggedin) next('router');
+    if(!req.session.loggedin) res.redirect("/login");
     else next();
 });
-
 
 
 router.get("/", function(req, res) {
