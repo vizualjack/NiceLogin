@@ -107,3 +107,6 @@ const httpsPort = process.env.HTTPS_PORT || 8443;
 var credentials = {key: privateKey, cert: certificate};
 var httpsServer = https.createServer(credentials, app);
 httpsServer.listen(httpsPort);
+console.log("Secured server started!");
+console.log(`Local: http://localhost:${httpsPort}`);
+console.log(`Network: http://${ip.address()}:${httpsPort}`);
