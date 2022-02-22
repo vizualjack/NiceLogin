@@ -93,20 +93,30 @@ app.get("*", function(req, res) {
     res.status(404).send('here is nothing');
 });
 
-var httpServer = http.createServer(app);
-httpServer.listen(httpPort);
 
-console.log("Server started!");
-console.log(`Local: http://localhost:${httpPort}`);
-console.log(`Network: http://${ip.address()}:${httpPort}`);
 
-if(process.env.HTTPS_CERT === '') return;
-var privateKey  = fs.readFileSync(process.env.HTTPS_PRIV_KEY, 'utf8');
-var certificate = fs.readFileSync(process.env.HTTPS_CERT, 'utf8');
-const httpsPort = process.env.HTTPS_PORT || 8443;
-var credentials = {key: privateKey, cert: certificate};
-var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(httpsPort);
-console.log("Secured server started!");
-console.log(`Local: http://localhost:${httpsPort}`);
-console.log(`Network: http://${ip.address()}:${httpsPort}`);
+if(process.env.HTTPS_CERT === '') {
+    var httpServer = http.createServer(redirectApp);
+    httpServer.listen(httpPort);
+    console.log("Server started!");
+    console.log(`Local: http://localhost:${httpPort}`);
+    console.log(`Network: http://${ip.address()}:${httpPort}`);    
+}
+else {
+    var redirectApp = express();
+    redirectApp.all("/*", function(req, res) {
+        res.redirect("https://" + req.hostname + req.url);
+    });
+    var httpServer = http.createServer(redirectApp);
+    httpServer.listen(httpPort);
+
+    var privateKey  = fs.readFileSync(process.env.HTTPS_PRIV_KEY, 'utf8');
+    var certificate = fs.readFileSync(process.env.HTTPS_CERT, 'utf8');
+    const httpsPort = process.env.HTTPS_PORT || 8443;
+    var credentials = {key: privateKey, cert: certificate};
+    var httpsServer = https.createServer(credentials, app);
+    httpsServer.listen(httpsPort);
+    console.log("Secured server started!");
+    console.log(`Local: http://localhost:${httpsPort}`);
+    console.log(`Network: http://${ip.address()}:${httpsPort}`);
+}
