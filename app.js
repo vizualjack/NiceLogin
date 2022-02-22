@@ -9,13 +9,7 @@ const bcrypt = require('bcrypt');
 const res = require('express/lib/response');
 const speakeasy = require('speakeasy');
 const ip = require("ip");
-
 const httpPort = process.env.HTTP_PORT || 8080;
-// const httpsPort = process.env.HTTPS_PORT || 8443;
-
-// var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-// var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
-// var credentials = {key: privateKey, cert: certificate};
 
 
 var app = express();
@@ -102,9 +96,14 @@ app.get("*", function(req, res) {
 var httpServer = http.createServer(app);
 httpServer.listen(httpPort);
 
-// var httpsServer = https.createServer(credentials, app);
-// httpsServer.listen(httpsPort);
-
 console.log("Server started!");
 console.log(`Local: http://localhost:${httpPort}`);
 console.log(`Network: http://${ip.address()}:${httpPort}`);
+
+if(process.env.HTTPS_CERT === '') return;
+var privateKey  = fs.readFileSync(process.env.HTTPS_PRIV_KEY, 'utf8');
+var certificate = fs.readFileSync(process.env.HTTPS_CERT, 'utf8');
+const httpsPort = process.env.HTTPS_PORT || 8443;
+var credentials = {key: privateKey, cert: certificate};
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(httpsPort);
