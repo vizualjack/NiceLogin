@@ -55,6 +55,9 @@
     </style>
 
     <script>
+        var checks = document.querySelector("div.checks");
+        const checkExample = document.querySelector(".check");
+        
         async function getChecks() {
             const response = await fetch("checklist/checks", {
                 method: 'GET',
@@ -98,29 +101,33 @@
             return response;
         }
 
+        async function addCheckToChecklist(id, checked, text) {
+            let newCheck = checkExample.cloneNode(true);
+            let input = newCheck.querySelector("input");
+            input.id = id;
+            input.checked = checked;
+            newCheck.querySelector("label").innerHTML = text;
+            newCheck.style.display = "block";
+            checks.append(newCheck);
+        }
+
         async function showChecks() {
-            let checks = document.querySelector("div.checks");
             clean(checks, 0);
-            let checkExample = document.querySelector(".check");
             (await getChecks()).forEach(check => {
-                let newCheck = checkExample.cloneNode(true);
-                let input = newCheck.querySelector("input");
-                input.id = check._id;
-                input.checked = check.checked;
-                newCheck.querySelector("label").innerHTML = check.text;
-                newCheck.style.display = "block";
-                checks.append(newCheck);
+                addCheckToChecklist(check._id, check.checked, check.text);
             });
         }
 
         async function changeStatus(event) {
             let check = event.target;
-            if(check.id && await sendChangeCheck(check.id)) showChecks();
+            if((check.id && await sendChangeCheck(check.id)))
+                event.preventDefault();
         }
 
         async function removeCheck(delBtn) {
             let check = event.target.parentElement.querySelector("input");
-            if(check.id && await sendRemoveCheck(check.id)) showChecks();
+            if(check.id && await sendRemoveCheck(check.id)) 
+                showChecks();
         }
 
         async function clean(element, startIndex) {
@@ -132,7 +139,8 @@
 
         async function createNewCheck() {
             let newCheckInput = document.querySelector("input[name=newCheckText]");
-            if(await sendNewCheck(newCheckInput.value)) showChecks();
+            if(await sendNewCheck(newCheckInput.value)) 
+                addCheckToChecklist(check._id, false, check.text);
         }
 
         showChecks();
