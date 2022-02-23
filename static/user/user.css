@@ -4,13 +4,13 @@ nav {
     box-sizing: border-box;
 }
 
-nav .leftNav {
+.leftNav {
     position: absolute;
     display: flex;
     gap: 20px;
 }
 
-nav .rightNav {
+.rightNav {
     justify-content: end;
     display: flex;
     gap: 20px;
@@ -18,6 +18,11 @@ nav .rightNav {
 
 span[role=button] {
     padding: 10px;
+}
+
+.leftNav span[role=button].active {
+    cursor: default;
+    background-color: lightgray;
 }
 
 .user {

@@ -16,7 +16,8 @@ router.post("/create", async function(req, res) {
     let user = await database.User.findOne({ username: req.session.username });
     let newCheck = database.Check({userHex: user._id.toHexString(), text: req.body.text, checked: false});
     const checkInDb = await newCheck.save();
-    res.send(checkInDb === newCheck);
+    if(checkInDb === newCheck) res.send(checkInDb._id.toHexString());
+    else res.send(null);
 });
 
 router.post("/changeStatus", async function(req, res) {

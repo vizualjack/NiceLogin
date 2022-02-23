@@ -1,7 +1,5 @@
 <head>
     <style>
-        .checklistPage {}
-
         .checklistPage h1 {
             margin: 0;
         }
@@ -12,6 +10,10 @@
             position: absolute;
             left: 100%;
             transform: translateX(-150%);
+        }
+
+        .checklistPage span[role="button"]:hover {
+            background-color: lightgray;
         }
 
         .checks {
@@ -76,7 +78,7 @@
                 },
                 body: JSON.stringify({text: text}) 
             });
-            return response;
+            return await response.text();
         }
 
         async function sendChangeCheck(id) {
@@ -112,7 +114,6 @@
         }
 
         async function showChecks() {
-            clean(checks, 0);
             (await getChecks()).forEach(check => {
                 addCheckToChecklist(check._id, check.checked, check.text);
             });
@@ -120,27 +121,19 @@
 
         async function changeStatus(event) {
             let check = event.target;
-            if((check.id && await sendChangeCheck(check.id)))
-                event.preventDefault();
+            if(check.id) sendChangeCheck(check.id);
         }
 
         async function removeCheck(delBtn) {
             let check = event.target.parentElement.querySelector("input");
             if(check.id && await sendRemoveCheck(check.id)) 
-                showChecks();
-        }
-
-        async function clean(element, startIndex) {
-            if(element.children.length <= 0) return;
-            for(let i = element.children.length-1; i > startIndex; i--) {
-                element.children[i].remove();
-            }
+                check.parentElement.remove();
         }
 
         async function createNewCheck() {
             let newCheckInput = document.querySelector("input[name=newCheckText]");
-            if(await sendNewCheck(newCheckInput.value)) 
-                addCheckToChecklist(check._id, false, check.text);
+            let newCheckId = await sendNewCheck(newCheckInput.value);
+            if(newCheckId) addCheckToChecklist(newCheckId, false, newCheckInput.value);
         }
 
         showChecks();

@@ -8,6 +8,9 @@
         <link rel="stylesheet" href="/base.css">
         <link rel="stylesheet" href="user.css">
         <script>
+            var navButtons = document.querySelectorAll(".leftNav span[role=button]");
+            var currentFeature = "";
+
             function logout() {                
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function() {
@@ -70,7 +73,15 @@
                 xhr.send();
             }
 
-            function loadUserFeature(name) {
+            function resetActiveStatusFromNavButtons() {
+                navButtons.forEach((button) => {
+                    button.classList.remove("active");
+                });
+            }
+
+            function loadUserFeature(navButton) {
+                let featureName = navButton.innerText.toLowerCase();
+                if(featureName === currentFeature) return;
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function() {
                     if(this.readyState != 4) return;
@@ -79,10 +90,13 @@
                         document.getElementById("featurePage").innerHTML = featurePage.getElementsByTagName("body")[0].innerHTML;
                         document.getElementById("featureStyle").innerHTML = featurePage.getElementsByTagName("style")[0].innerHTML;
                         document.getElementById("featureScript").innerHTML = featurePage.getElementsByTagName("script")[0].innerHTML;
+                        resetActiveStatusFromNavButtons();
+                        navButton.classList.add("active");
+                        currentFeature = featureName;
                     }
                     else console.log(this.statusText);
                 }
-                xhr.open("GET", name, true);
+                xhr.open("GET", featureName, true);
                 xhr.send();
             }
 
@@ -96,7 +110,7 @@
     <body>
         <nav>
             <div class="leftNav">
-                <span role="button" onclick="loadUserFeature('checklist')">Checklist</span>
+                <span role="button" onclick="loadUserFeature(this)">Checklist</span>
             </div>
             <div class="rightNav">
                 <span role="button" onclick="switchSettings()">Settings</span>
