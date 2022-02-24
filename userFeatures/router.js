@@ -7,6 +7,7 @@ const Database = require('./database');
 let database = new Database();
 
 var checklist = require("./features/checklist/router");
+var timeline = require("./features/timeline/router");
 
 
 router.addUser = async function (username, password) {
@@ -20,7 +21,6 @@ router.getUserByUsername = async function (username) {
     return user;
 }
 
-
 router.use(function checkLoggedIn(req, res, next) {
     if(!req.session.loggedin) res.redirect("/login");
     else next();
@@ -32,6 +32,7 @@ router.get("/", function(req, res) {
 });
 
 router.use("/checklist", checklist);
+router.use("/timeline", timeline);
 
 router.get("/info", function(req, res) {
     res.send({username: req.session.username});

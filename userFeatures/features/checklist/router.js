@@ -5,9 +5,6 @@ const path = require('path');
 const Database = require('../../database');
 let database = new Database();
 
-async function getCheckForUsername(username) {
-}
-
 router.get("/", function(req, res) {
     res.sendFile(path.join(__dirname, "index.html"));
 });
