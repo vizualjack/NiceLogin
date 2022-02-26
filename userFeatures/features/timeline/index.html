@@ -3,15 +3,107 @@
         .timelinePage h1 {
             margin: 0;
         }
+
+        .timelinePage input[type=number] {
+            width: 3em;
+        }
+
+        .timelinePage .newEvent {
+            width: 170px;
+            margin-left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .timelinePage .newEvent .time {
+            display: flex;
+        }
+
+        .timelinePage .newEvent .time span {
+            flex-grow: 1;
+        }
+
+        .timelinePage .timelineWrapper {
+            overflow-y: auto;
+        }
+
+        .timelinePage .timelineWrapper .timeline {
+            width: 100%;
+            height: 500px;
+            background-color: lightgray;
+        }
     </style>
 
     <script>
-        
+        async function getEvents(start, end) {
+            const response = await fetch("timeline/events", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({start: start, end: end})
+            });
+            return response.json();
+        }
+
+        async function sendNewEvent(text, start, end) {
+            const response = await fetch("timeline/create", {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({text: text, start: start, end: end}) 
+            });
+            return await response.text();
+        }
+
+        async function sendRemoveEvent(id) {
+            const response = await fetch("timeline/delete", {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({eventId: id}) 
+            });
+            return response;
+        }
+
+        async function loadEvents() {
+            let start = new Date();
+            start.setHours(0);
+            start.setMinutes(0);
+            start.setSeconds(0);            
+            let end = new Date();
+            end.setHours(23);
+            end.setMinutes(59);
+            end.setSeconds(59);
+
+            let userEvents = await getEvents(start, end);
+            console.log(userEvents);
+        }
+
+        loadEvents();
     </script>
 </head>
 
 <body>
     <div class="timelinePage">
         <h1>Timeline</h1>
+        <div class="newEvent">
+            <div class="time">
+                <span>Start:</span>
+                <input name="start" type="number" max="23">:<input name="start" type="number" max="59">
+            </div>
+            <div class="time">
+                <span>End: </span>
+                <input name="end" type="number" max="23">:<input name="end" type="number" max="59">
+            </div>
+            <span role="button">Create</span>
+        </div>
+
+        <div class="timelineWrapper">
+            <div class="timeline">
+
+            </div>
+        </div>
     </div>
 </body>

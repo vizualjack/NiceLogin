@@ -11,15 +11,15 @@ router.get("/", function(req, res) {
 
 router.post("/create", async function(req, res) {
     let user = await database.User.findOne({ username: req.session.username });
-    let newCheck = database.Check({userHex: user._id.toHexString(), text: req.body.text, checked: false});
+    let newCheck = database.Check({user: user, text: req.body.text, checked: false});
     const checkInDb = await newCheck.save();
     if(checkInDb === newCheck) res.send(checkInDb._id.toHexString());
     else res.send(null);
 });
 
 router.post("/changeStatus", async function(req, res) {
-    let userHex = (await database.User.findOne({ username: req.session.username }))._id.toHexString();
-    let check = await database.Check.findOne({_id: req.body.checkId, userHex: userHex});
+    let user = (await database.User.findOne({ username: req.session.username }));
+    let check = await database.Check.findOne({_id: req.body.checkId, user: user});
     if(check) {
         check.checked = !check.checked;
         await check.save();
@@ -28,15 +28,15 @@ router.post("/changeStatus", async function(req, res) {
 });
 
 router.post("/delete", async function(req, res) {
-    let userHex = (await database.User.findOne({ username: req.session.username }))._id.toHexString();
-    await database.Check.findOneAndRemove({_id: req.body.checkId, userHex: userHex});
-    let check = await database.Check.findOne({_id: req.body.checkId, userHex: userHex});
+    let user = (await database.User.findOne({ username: req.session.username }));
+    await database.Check.findOneAndRemove({_id: req.body.checkId, user: user});
+    let check = await database.Check.findOne({_id: req.body.checkId, user: user});
     res.send(check == undefined);
 });
 
 router.get("/checks", async function(req, res) {
     let user = await database.User.findOne({ username: req.session.username });
-    let checksForUser = await database.Check.find({userHex: user._id.toHexString()},["text", "checked"]);
+    let checksForUser = await database.Check.find({user: user},["text", "checked"]);
     res.send(checksForUser);
 });
 

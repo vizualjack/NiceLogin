@@ -16,10 +16,23 @@ class Database {
         });
     
         this.Check = mongoose.model('Check', {
-            userHex: String,
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            },
             text: String,
             checked: Boolean
-        })
+        });
+
+        this.Event = mongoose.model('Event',  {
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            },
+            text: String,
+            start: Date,
+            end: Date
+        });
     }
 }
 

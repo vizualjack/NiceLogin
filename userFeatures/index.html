@@ -8,8 +8,8 @@
         <link rel="stylesheet" href="/base.css">
         <link rel="stylesheet" href="user.css">
         <script>
-            var navButtons = document.querySelectorAll(".leftNav span[role=button]");
             var currentFeature = "";
+            var navButtons = undefined;
 
             function logout() {                
                 let xhr = new XMLHttpRequest();
@@ -100,17 +100,21 @@
                 xhr.send();
             }
 
-            loadUser();
+            function load() {
+                navButtons = document.querySelectorAll(".leftNav span[role=button]");
+                loadUser();
+            }
         </script>
 
         <style id="featureStyle"></style>
         <script id="featureScript"></script>
     </head>
 
-    <body>
+    <body onload="load()">
         <nav>
             <div class="leftNav">
                 <span role="button" onclick="loadUserFeature(this)">Checklist</span>
+                <span role="button" onclick="loadUserFeature(this)">Timeline</span>
             </div>
             <div class="rightNav">
                 <span role="button" onclick="switchSettings()">Settings</span>
