@@ -30,10 +30,28 @@
             width: 100%;
             height: 500px;
             background-color: lightgray;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .timeline .event {
+            background-color: lightblue;
+            position: absolute;
+            width: 100%;
+            display: none;
         }
     </style>
 
     <script>
+        var startTimeInput = document.querySelectorAll("input[name=start]");
+        var endTimeInput = document.querySelectorAll("input[name=end]");
+
+        var timeline = document.querySelector("div.timeline");
+        var eventExample = document.querySelector("div.event");
+
+        var start = new Date();
+        var end = new Date();
+
         async function getEvents(start, end) {
             const response = await fetch("timeline/events", {
                 method: 'POST',
@@ -68,17 +86,46 @@
         }
 
         async function loadEvents() {
-            let start = new Date();
             start.setHours(0);
             start.setMinutes(0);
-            start.setSeconds(0);            
-            let end = new Date();
+            start.setSeconds(0);
             end.setHours(23);
             end.setMinutes(59);
             end.setSeconds(59);
 
+            let pixelForOneMilli = timeline.clientHeight / (end.getTime() - start.getTime());
             let userEvents = await getEvents(start, end);
-            console.log(userEvents);
+            userEvents.forEach((event) => {
+                let eventStart = new Date(event.start);
+                let eventEnd = new Date(event.end);
+                
+                let eventDuration = eventEnd.getTime() - eventStart.getTime();
+                let startDiff = eventStart.getTime() - start.getTime();
+
+                let eventHeight = pixelForOneMilli * eventDuration;
+                let eventTop = pixelForOneMilli * startDiff;
+
+                let newEvent = eventExample.cloneNode(true);
+                newEvent.innerHTML = event.text;
+                newEvent.style.display = "block";
+                newEvent.style.height = eventHeight + "px";
+                newEvent.style.top = eventTop + "px";
+                timeline.append(newEvent);
+            });
+        }
+
+        async function createNewEventForToday() { 
+            let start = new Date();
+            start.setHours(startTimeInput[0].value);
+            start.setMinutes(startTimeInput[1].value);
+            start.setSeconds(0);
+            let end = new Date();
+            end.setHours(endTimeInput[0].value);
+            end.setMinutes(endTimeInput[1].value);
+            end.setSeconds(0);
+
+            let res = await sendNewEvent("test", start, end);
+            console.log(res);
         }
 
         loadEvents();
@@ -97,12 +144,12 @@
                 <span>End: </span>
                 <input name="end" type="number" max="23">:<input name="end" type="number" max="59">
             </div>
-            <span role="button">Create</span>
+            <span role="button" onclick="createNewEventForToday()">Create</span>
         </div>
 
         <div class="timelineWrapper">
             <div class="timeline">
-
+                <div class="event"></div>
             </div>
         </div>
     </div>
