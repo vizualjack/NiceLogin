@@ -114,17 +114,31 @@
             });
         }
 
-        async function createNewEventForToday() { 
-            let start = new Date();
-            start.setHours(startTimeInput[0].value);
-            start.setMinutes(startTimeInput[1].value);
-            start.setSeconds(0);
-            let end = new Date();
-            end.setHours(endTimeInput[0].value);
-            end.setMinutes(endTimeInput[1].value);
-            end.setSeconds(0);
+        function clearTimeline() {
+            for (let i = timeline.childElementCount-1; i > 0; i--) {
+                let event = timeline.children[i];
+                event.remove();
+            }
+        }
 
-            let res = await sendNewEvent("test", start, end);
+        async function changeDay(changeByDay) {
+            start.setDate(start.getDate() + changeByDay);
+            end.setDate(end.getDate() + changeByDay);
+            clearTimeline();
+            loadEvents();
+        }
+
+        async function createNewEventForToday() { 
+            let eventStart = new Date(start.toDateString());
+            eventStart.setHours(startTimeInput[0].value);
+            eventStart.setMinutes(startTimeInput[1].value);
+            eventStart.setSeconds(0);
+            let eventEnd = new Date(end.toDateString());
+            eventEnd.setHours(endTimeInput[0].value);
+            eventEnd.setMinutes(endTimeInput[1].value);
+            eventEnd.setSeconds(0);
+
+            let res = await sendNewEvent("test", eventStart, eventEnd);
             console.log(res);
         }
 
