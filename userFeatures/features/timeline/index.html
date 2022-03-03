@@ -14,43 +14,107 @@
             transform: translateX(-50%);
         }
 
-        .timelinePage .newEvent .time {
+        .timelinePage .newEvent .labelInput {
             display: flex;
         }
 
-        .timelinePage .newEvent .time span {
+        .timelinePage .newEvent .labelInput span {
             flex-grow: 1;
+        }
+
+        .timelinePage .newEvent input[name=eventName] {
+            width: 162px;
+        }
+
+        .timelinePage .dateChanger {
+            display: flex;
+            width: 400px;
+            margin: 0 auto;
+        }
+
+        .timelinePage .dateChanger span {
+            padding: 10px;
+            display: block;
+        }
+
+        .timelinePage .dateChanger span[role=button] {
+            width: 21px;
+        }
+
+        .timelinePage .dateChanger .currentDate {
+            color: lightblue;
+            width: 100%;
+            text-align: center;
         }
 
         .timelinePage .timelineWrapper {
             overflow-y: auto;
+            height: 500px;
+            width: 450px;
+            margin: 5px auto 0 auto;
         }
 
         .timelinePage .timelineWrapper .timeline {
             width: 100%;
-            height: 500px;
-            background-color: lightgray;
+            height: 2000px;
+            background-color: rgb(30,30,30);
             overflow-x: hidden;
             position: relative;
         }
 
+        .timeline .currentTimeLine {
+            position: absolute;
+            display: none;
+            width: 100%;
+            height: 2px;
+            background-color: red;
+            z-index: 1;
+        }
+
         .timeline .event {
-            background-color: lightblue;
+            background-color: rgba(107, 196, 255, 0.337);
+            position: absolute;
+            width: 75%;
+            display: none;
+            padding-left: 5px;
+            margin-left: 25%;
+            z-index: 2;
+        }
+
+        .timeline .timeSeperator {
+            display: none;
             position: absolute;
             width: 100%;
-            display: none;
+        }
+
+        .timeline .timeSeperator span {
+            width: 88px;
+            margin: -7px 0 0 3px;
+            text-align: right;
+        }
+
+        .timeline .timeSeperator .line {
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            margin-left: 10px;
         }
     </style>
 
     <script>
+        var eventNameInput = document.querySelector("input[name=eventName]");
         var startTimeInput = document.querySelectorAll("input[name=start]");
         var endTimeInput = document.querySelectorAll("input[name=end]");
 
+        var currentDate = document.querySelector(".dateChanger .currentDate");
         var timeline = document.querySelector("div.timeline");
         var eventExample = document.querySelector("div.event");
+        var currentTimeLine = document.querySelector(".timeline .currentTimeLine");
 
         var start = new Date();
         var end = new Date();
+        var pixelForOneMilli = 0;
+        var numOfElementsToSkip = 0;
 
         async function getEvents(start, end) {
             const response = await fetch("timeline/events", {
@@ -85,6 +149,29 @@
             return response;
         }
 
+        function twoDigits(val) {
+            return val < 10 ? ("0" + val) : val;
+        }
+
+        function showTimeForDate(date)  {
+            return twoDigits(date.getHours()) +  ":" + twoDigits(date.getMinutes());
+        }
+
+        function createAndAddEvent(text, eventStart, eventEnd) {
+            let eventDuration = eventEnd.getTime() - eventStart.getTime();
+            let startDiff = eventStart.getTime() - start.getTime();
+
+            let eventHeight = pixelForOneMilli * eventDuration;
+            let eventTop = pixelForOneMilli * startDiff;
+
+            let newEvent = eventExample.cloneNode(true);
+            newEvent.innerHTML = text + " (" + showTimeForDate(eventStart) + " - " + showTimeForDate(eventEnd) + ")";
+            newEvent.style.display = "block";
+            newEvent.style.height = eventHeight + "px";
+            newEvent.style.top = eventTop + "px";
+            timeline.append(newEvent);
+        }
+
         async function loadEvents() {
             start.setHours(0);
             start.setMinutes(0);
@@ -92,30 +179,20 @@
             end.setHours(23);
             end.setMinutes(59);
             end.setSeconds(59);
-
-            let pixelForOneMilli = timeline.clientHeight / (end.getTime() - start.getTime());
+            
+            currentDate.innerHTML = start.toDateString();
+            pixelForOneMilli = timeline.clientHeight / (end.getTime() - start.getTime());
             let userEvents = await getEvents(start, end);
+            console.log("num of events:" + userEvents.length);
             userEvents.forEach((event) => {
                 let eventStart = new Date(event.start);
                 let eventEnd = new Date(event.end);
-                
-                let eventDuration = eventEnd.getTime() - eventStart.getTime();
-                let startDiff = eventStart.getTime() - start.getTime();
-
-                let eventHeight = pixelForOneMilli * eventDuration;
-                let eventTop = pixelForOneMilli * startDiff;
-
-                let newEvent = eventExample.cloneNode(true);
-                newEvent.innerHTML = event.text;
-                newEvent.style.display = "block";
-                newEvent.style.height = eventHeight + "px";
-                newEvent.style.top = eventTop + "px";
-                timeline.append(newEvent);
+                createAndAddEvent(event.text, eventStart, eventEnd);
             });
         }
 
         function clearTimeline() {
-            for (let i = timeline.childElementCount-1; i > 0; i--) {
+            for (let i = timeline.childElementCount-1; i > numOfElementsToSkip; i--) {
                 let event = timeline.children[i];
                 event.remove();
             }
@@ -138,11 +215,58 @@
             eventEnd.setMinutes(endTimeInput[1].value);
             eventEnd.setSeconds(0);
 
-            let res = await sendNewEvent("test", eventStart, eventEnd);
-            console.log(res);
+            let res = await sendNewEvent(eventNameInput.value, eventStart, eventEnd);
+            if(res) {
+                createAndAddEvent(eventNameInput.value, eventStart, eventEnd);
+                startTimeInput[0].value = "";
+                startTimeInput[1].value = "";
+                endTimeInput[0].value = "";
+                endTimeInput[1].value = "";
+                eventNameInput.value = "";
+            }
         }
 
-        loadEvents();
+        function showCurrentTime() {
+            if(pixelForOneMilli == 0) return;
+            let currentTime = new Date();
+            if(currentTime.toDateString() !== start.toDateString()) {
+                currentTimeLine.style.display = "none";
+                return;
+            }
+            let currentTimeDiff = currentTime.getTime() - start.getTime();
+            let currentTimeLineTop = currentTimeDiff * pixelForOneMilli;
+
+            currentTimeLine.style.display = "block";
+            currentTimeLine.style.top = currentTimeLineTop + "px";
+        }
+
+        function createTimeSeperator() {
+            let timeSeperatorExample = document.querySelector(".timeline .timeSeperator");
+            let time = new Date();
+            time.setHours(0);
+            time.setMinutes(30);
+            do {
+                let timeSeperator = timeSeperatorExample.cloneNode(true);
+                timeSeperator.style.display = "flex";
+                timeSeperator.children[0].innerHTML = showTimeForDate(time);
+
+                let startDiff = time.getTime() - start.getTime();
+                let timeSeperatorTop = pixelForOneMilli * startDiff;
+
+                timeSeperator.style.top = timeSeperatorTop + "px";
+                timeline.append(timeSeperator);
+                time.setMinutes(time.getMinutes() + 30);
+            } while(time.getHours() != 0 || time.getMinutes() != 0);
+
+            numOfElementsToSkip = timeline.childElementCount;
+        }
+        function load() {
+            loadEvents();
+            createTimeSeperator();
+            window.setInterval(showCurrentTime, 1000);
+        }
+
+        load();
     </script>
 </head>
 
@@ -150,20 +274,32 @@
     <div class="timelinePage">
         <h1>Timeline</h1>
         <div class="newEvent">
-            <div class="time">
+            <span>Event-Text:</span>
+            <input name="eventName">
+            <div class="labelInput">
                 <span>Start:</span>
                 <input name="start" type="number" max="23">:<input name="start" type="number" max="59">
             </div>
-            <div class="time">
+            <div class="labelInput">
                 <span>End: </span>
                 <input name="end" type="number" max="23">:<input name="end" type="number" max="59">
             </div>
             <span role="button" onclick="createNewEventForToday()">Create</span>
         </div>
 
+        <div class="dateChanger">
+            <span role="button" onclick="changeDay(-1)"><</span>
+            <span class="currentDate">date here</span>
+            <span role="button" onclick="changeDay(1)">></span>
+        </div>
         <div class="timelineWrapper">
             <div class="timeline">
+                <div class="currentTimeLine"></div>
                 <div class="event"></div>
+                <div class="timeSeperator">
+                    <span>12:00</span>
+                    <div class="line"></div>
+                </div>
             </div>
         </div>
     </div>

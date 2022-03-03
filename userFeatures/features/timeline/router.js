@@ -10,11 +10,16 @@ router.get("/", function(req, res) {
 });
 
 router.post("/create", async function(req, res) {
-    const eventData = req.body;    
+    const eventData = req.body;
     let user = await database.User.findOne({ username: req.session.username });
+    if(eventData.text === "" || eventData.start >= eventData.end) {
+        res.send();
+        return;
+    }
     let newEvent = database.Event({user: user, text: eventData.text, start: eventData.start, end: eventData.end});
     const eventInDb = await newEvent.save();
     if(eventInDb === newEvent) res.send(eventInDb._id.toHexString());
+    else res.send();
 });
 
 router.post("/events", async function(req, res) {

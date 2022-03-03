@@ -133,7 +133,10 @@
         async function createNewCheck() {
             let newCheckInput = document.querySelector("input[name=newCheckText]");
             let newCheckId = await sendNewCheck(newCheckInput.value);
-            if(newCheckId) addCheckToChecklist(newCheckId, false, newCheckInput.value);
+            if(newCheckId) {
+                addCheckToChecklist(newCheckId, false, newCheckInput.value);
+                newCheckInput.value = "";
+            }
         }
 
         showChecks();
