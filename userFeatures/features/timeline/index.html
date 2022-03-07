@@ -113,7 +113,7 @@
 
         var start = new Date();
         var end = new Date();
-        var pixelForOneMilli = 0;
+        var pixelForOneSec = 0;
         var numOfElementsToSkip = 0;
 
         async function getEvents(start, end) {
@@ -158,11 +158,11 @@
         }
 
         function createAndAddEvent(text, eventStart, eventEnd) {
-            let eventDuration = eventEnd.getTime() - eventStart.getTime();
-            let startDiff = eventStart.getTime() - start.getTime();
+            let eventDuration = (eventEnd.getTime() - eventStart.getTime()) / 1000;
+            let startDiff = (eventStart.getTime() - start.getTime()) / 1000;
 
-            let eventHeight = pixelForOneMilli * eventDuration;
-            let eventTop = pixelForOneMilli * startDiff;
+            let eventHeight = pixelForOneSec * eventDuration;
+            let eventTop = pixelForOneSec * startDiff;
 
             let newEvent = eventExample.cloneNode(true);
             newEvent.innerHTML = text + " (" + showTimeForDate(eventStart) + " - " + showTimeForDate(eventEnd) + ")";
@@ -181,7 +181,7 @@
             end.setSeconds(59);
             
             currentDate.innerHTML = start.toDateString();
-            pixelForOneMilli = timeline.clientHeight / (end.getTime() - start.getTime());
+            pixelForOneSec = timeline.clientHeight / ((end.getTime() - start.getTime()) / 1000);
             let userEvents = await getEvents(start, end);
             console.log("num of events:" + userEvents.length);
             userEvents.forEach((event) => {
@@ -227,14 +227,14 @@
         }
 
         function showCurrentTime() {
-            if(pixelForOneMilli == 0) return;
+            if(pixelForOneSec == 0) return;
             let currentTime = new Date();
             if(currentTime.toDateString() !== start.toDateString()) {
                 currentTimeLine.style.display = "none";
                 return;
             }
-            let currentTimeDiff = currentTime.getTime() - start.getTime();
-            let currentTimeLineTop = currentTimeDiff * pixelForOneMilli;
+            let currentTimeDiff = (currentTime.getTime() - start.getTime()) / 1000;
+            let currentTimeLineTop = currentTimeDiff * pixelForOneSec;
 
             currentTimeLine.style.display = "block";
             currentTimeLine.style.top = currentTimeLineTop + "px";
@@ -250,8 +250,8 @@
                 timeSeperator.style.display = "flex";
                 timeSeperator.children[0].innerHTML = showTimeForDate(time);
 
-                let startDiff = time.getTime() - start.getTime();
-                let timeSeperatorTop = pixelForOneMilli * startDiff;
+                let startDiff = (time.getTime() - start.getTime()) / 1000;
+                let timeSeperatorTop = pixelForOneSec * startDiff;
 
                 timeSeperator.style.top = timeSeperatorTop + "px";
                 timeline.append(timeSeperator);
@@ -260,13 +260,12 @@
 
             numOfElementsToSkip = timeline.childElementCount;
         }
-        function load() {
+        
+        function initFeature() {
             loadEvents();
             createTimeSeperator();
             window.setInterval(showCurrentTime, 1000);
         }
-
-        load();
     </script>
 </head>
 

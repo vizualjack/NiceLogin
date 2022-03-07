@@ -87,9 +87,12 @@
                     if(this.readyState != 4) return;
                     if(this.status == 200) {
                         let featurePage = new DOMParser().parseFromString(this.response, "text/html");
+                        initFeature = null;
                         document.getElementById("featurePage").innerHTML = featurePage.getElementsByTagName("body")[0].innerHTML;
                         document.getElementById("featureStyle").innerHTML = featurePage.getElementsByTagName("style")[0].innerHTML;
                         document.getElementById("featureScript").innerHTML = featurePage.getElementsByTagName("script")[0].innerHTML;
+                        console.log(initFeature);
+                        if(initFeature) initFeature();
                         resetActiveStatusFromNavButtons();
                         navButton.classList.add("active");
                         currentFeature = featureName;
@@ -100,7 +103,7 @@
                 xhr.send();
             }
 
-            function load() {
+            function loadBasePage() {
                 navButtons = document.querySelectorAll(".leftNav span[role=button]");
                 loadUser();
             }
@@ -110,7 +113,7 @@
         <script id="featureScript"></script>
     </head>
 
-    <body onload="load()">
+    <body onload="loadBasePage()">
         <nav>
             <div class="leftNav">
                 <span role="button" onclick="loadUserFeature(this)">Checklist</span>

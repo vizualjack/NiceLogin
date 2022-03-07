@@ -113,12 +113,6 @@
             checks.append(newCheck);
         }
 
-        async function showChecks() {
-            (await getChecks()).forEach(check => {
-                addCheckToChecklist(check._id, check.checked, check.text);
-            });
-        }
-
         async function changeStatus(event) {
             let check = event.target;
             if(check.id) sendChangeCheck(check.id);
@@ -139,7 +133,11 @@
             }
         }
 
-        showChecks();
+        async function initFeature() {
+            (await getChecks()).forEach(check => {
+                addCheckToChecklist(check._id, check.checked, check.text);
+            });
+        }
     </script>
 </head>
 
