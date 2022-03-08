@@ -6,9 +6,8 @@ const qrcode = require('qrcode');
 const Database = require('./database');
 let database = new Database();
 
-var checklist = require("./features/checklist/router");
-var timeline = require("./features/timeline/router");
-
+var checklist = require("./features/checklist");
+var timeline = require("./features/timeline");
 
 router.addUser = async function (username, password) {
     let user = database.User({username: username, password: password});
@@ -24,11 +23,6 @@ router.getUserByUsername = async function (username) {
 router.use(function checkLoggedIn(req, res, next) {
     if(!req.session.loggedin) res.redirect("/login");
     else next();
-});
-
-
-router.get("/", function(req, res) {
-    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 router.use("/checklist", checklist);
