@@ -22,13 +22,8 @@ router.getUserByUsername = async function (username) {
 }
 
 router.use(function checkLoggedIn(req, res, next) {
-    if(!req.session.loggedin) res.redirect("/login");
+    if(!req.session.loggedin) res.sendStatus(401);
     else next();
-});
-
-
-router.get("/", function(req, res) {
-    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 router.use("/checklist", checklist);
@@ -64,35 +59,25 @@ router.get("/genTwoFactor", async function(req, res) {
     }
 });
 
-router.route("/twoFactor")
-    .get(async function(req, res) {
-        let user = await router.getUserByUsername(req.session.username);
-        if(!user.secretVerified) {
-            res.sendFile(path.join(__dirname, "twoFactor.html"));
-        }
-        else {
-            res.redirect("/");
-        }
-    })
-    .post(async function(req, res) {
-        let user = await router.getUserByUsername(req.session.username);
-        if(!user.secretVerified) {
-            let verified = speakeasy.totp.verify({
-                secret: user.secret,
-                encoding: "base32",
-                token: req.body.token
-            });
+router.post("/twoFactor", async function(req, res) {
+    let user = await router.getUserByUsername(req.session.username);
+    if(!user.secretVerified) {
+        let verified = speakeasy.totp.verify({
+            secret: user.secret,
+            encoding: "base32",
+            token: req.body.token
+        });
 
-            if(verified) {
-                user.secretVerified = true;
-                user.save();
-            }
-            res.send(verified);
+        if(verified) {
+            user.secretVerified = true;
+            user.save();
         }
-        else {
-            res.writeHead(404);
-            res.end()
-        }
-    });
+        res.send(verified);
+    }
+    else {
+        res.writeHead(404);
+        res.end()
+    }
+});
 
 module.exports = router;

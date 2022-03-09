@@ -23,76 +23,64 @@ app.use(session({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
+
+app.use(function checkForHtmlRequest(req, res, next) {
+    if(req.accepts("text/html")) res.sendFile(path.join(__dirname, "index.html"));
+    else next();
+});
+
 app.use("/user", userFeatures);
 
-app.get("/", function(req,res) {
-    if(req.session.loggedin) res.redirect("/user")
-    else res.redirect("/login");
-});
+app.post("/login", async function(req, res) {
+    let loginData = req.body;
+    let user = await userFeatures.getUserByUsername(loginData.username);
+    if(!user || 
+        !bcrypt.compareSync(loginData.password, user.password)) {
+            res.writeHead(401, "Username or password was not correct");
+        }
+    else if(user.secretVerified){
+        if(!req.body.token) {
+            res.writeHead(401, "Token needed");
+        }
+        else {
+            let verified = speakeasy.totp.verify({
+                secret: user.secret,
+                encoding: "base32",
+                token: req.body.token
+            });
 
-app.route("/login")
-    .get(function(req, res) {
-        res.sendFile(path.join(__dirname, "login.html"));
-    })
-    .post(async function(req, res) {
-        let loginData = req.body;
-        let user = await userFeatures.getUserByUsername(loginData.username);
-        if(!user || 
-            !bcrypt.compareSync(loginData.password, user.password)) {
-                res.writeHead(401, "Username or password was not correct");
-            }
-        else if(user.secretVerified){
-            if(!req.body.token) {
-                res.writeHead(401, "Token needed");
+            if(!verified) {
+                res.writeHead(401, "Token was not correct");
             }
             else {
-                let verified = speakeasy.totp.verify({
-                    secret: user.secret,
-                    encoding: "base32",
-                    token: req.body.token
-                });
-
-                if(!verified) {
-                    res.writeHead(401, "Token was not correct");
-                }
-                else {
-                    res.writeHead(200);
-                    req.session.loggedin = true;
-                    req.session.username = loginData.username;
-                }
+                res.writeHead(200);
+                req.session.loggedin = true;
+                req.session.username = loginData.username;
             }
         }
-        else {
-            res.writeHead(200);
-            req.session.loggedin = true;
-            req.session.username = loginData.username;
-        }
-        res.end();
-    });
-
-app.route("/register")
-    .get(function(req, res) {
-        res.sendFile(path.join(__dirname, "register.html"));
-    })
-    .post(async function(req, res) {
-        let loginData = req.body;
-        let user = await userFeatures.getUserByUsername(loginData.username);
-        console.log(user);
-        if(user) {
-            res.writeHead(400, "Username already exists");
-        }
-        else {
-            let hashedPw = bcrypt.hashSync(loginData.password, 10);
-            userFeatures.addUser(loginData.username, hashedPw);
-            res.writeHead(200);
-        }
-        res.end();
-    });
-
-app.get("*", function(req, res) {
-    res.status(404).send('here is nothing');
+    }
+    else {
+        res.writeHead(200);
+        req.session.loggedin = true;
+        req.session.username = loginData.username;
+    }
+    res.end();
 });
 
+app.post("/register", async function(req, res) {
+    let loginData = req.body;
+    let user = await userFeatures.getUserByUsername(loginData.username);
+    console.log(user);
+    if(user) {
+        res.writeHead(400, "Username already exists");
+    }
+    else {
+        let hashedPw = bcrypt.hashSync(loginData.password, 10);
+        userFeatures.addUser(loginData.username, hashedPw);
+        res.writeHead(200);
+    }
+    res.end();
+});
 
 if(process.env.HTTPS_CERT === '') {
     var httpServer = http.createServer(app);
