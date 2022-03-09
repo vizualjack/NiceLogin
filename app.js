@@ -15,6 +15,11 @@ const httpPort = process.env.HTTP_PORT || 8080;
 var app = express();
 var userFeatures = require("./userFeatures/router");
 
+// app.use(function logRequest(req, res, next) {
+//     console.log(req.originalUrl);
+//     next();
+// });
+
 app.use(session({
 	secret: 'secret',
 	resave: true,
@@ -25,7 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
 
 app.use(function checkForHtmlRequest(req, res, next) {
-    if(req.accepts("text/html")) res.sendFile(path.join(__dirname, "index.html"));
+    if(req.accepts("text/html")) res.sendFile(path.join(__dirname, "static/index.html"));
     else next();
 });
 
