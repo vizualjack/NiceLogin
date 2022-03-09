@@ -6,9 +6,8 @@ const qrcode = require('qrcode');
 const Database = require('./database');
 let database = new Database();
 
-var checklist = require("./features/checklist/router");
-var timeline = require("./features/timeline/router");
-
+var checklist = require("./features/checklist");
+var timeline = require("./features/timeline");
 
 router.addUser = async function (username, password) {
     let user = database.User({username: username, password: password});
